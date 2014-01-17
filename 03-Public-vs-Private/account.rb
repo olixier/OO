@@ -1,16 +1,15 @@
-# This is how you define your own custom exception classes
+require_relative 'transaction'
+
 class DepositError < StandardError
+end
+
+class WithdrawError < StandardError
 end
 
 class BankAccount
   
-  # Contract for the BankAccount class
-  # - you can access full owner's name and position, but partial IBAN
-  # - you cannot access full IBAN
-  # - you can print partial account infos
-  # - you can print transactions only with a password
-  # - you can withdraw or deposit money
-  
+  attr_reader :name, :position, :transactions
+
   MIN_DEPOSIT =  100
   
   def initialize(name, iban, initial_deposit, password)
@@ -24,29 +23,44 @@ class BankAccount
   end
     
   def withdraw(amount)
+    raise WithdrawError, "Insufficient funds" unless amount >= @position
+    add_transaction(-amount)
+    puts "You've just withdrawn #{amount} euros"
   end
   
   def deposit(amount)
+    raise DepositError, "Invalid Amount" unless amount > 0
+    add_transaction(amount)
+    puts "You've just made a #{amount} euro deposit"
   end
   
   def transactions_history(args = {})
-    # Should print transactions, BUT NOT return the transaction array !
+    if args == {}
+      puts "no password given"
+    else
+      if args[:password] == @password
+        puts @transactions
+      else
+        puts "wrong password"
+      end
+    end
+    return nil
   end
   
   def iban
-    # Partial getter (should hide the middle of the IBAN like FR14**************606)
+    @iban[0, 4] + "**************" + @iban[-3, 3]
   end
   
   def to_s
-    # Method used when printing account object as string (also used for string interpolation)
+    "Owner: #{@name}\nIBAN: #{iban}\nCurrent amount: #{@position} euros"
   end
           
   private  
   
   def add_transaction(amount)
     # Main account logic
-    # Should add the amount in the transactions array
-    # Should update the current position
+    @transactions << Transaction.new(amount)
+    @position += amount
   end
     
 end
@@ -81,4 +95,4 @@ account.transactions_history() # => no password given
 puts account.position == 435 # => true
 
 # Un-comment the following to test custom exception
-# too_small_deposit = BankAccount.new("Poor Billy", "FR14-2004-1010-0505-0001-3M02-606", 50, "toopoor")
+too_small_deposit = BankAccount.new("Poor Billy", "FR14-2004-1010-0505-0001-3M02-606", 50, "toopoor")
