@@ -1,0 +1,85 @@
+class CreationError < StandardError
+end
+
+class Restaurant
+
+	attr_reader :name, :location, :order_db, :customer_db, :item_db, :employee_db
+
+	def initialize(args = {})
+		raise CreationError, "No name provided" if args[:name].nil?
+		@name = args[:name]
+		@location = args[:location]
+		@order_db = []
+		@customer_db = []
+		@item_db = []
+		@employee_db = []
+	end
+
+end
+
+class Order
+
+	attr_accessor :customer, :order_time, :items, :total_price
+
+	def initialize(args = {})
+		@customer = args[:customer]
+		@order_time = Time.now
+		@items = args[:items]
+		@total_price = @items.reduce(0) { |sum, x| sum + x.price }
+		Restaurant.order_db << self
+	end
+
+	def to_s
+		item_list = @items.reduce('') { |string, x| string + ' ' + x.to_s }
+		"Order time: " + @order_time.strftime("%d/%m/%y at %I:%M %p ") + "\nCustomer: #{@customer}" + "\nItems:" + item_list + "\nTotal price: #{@total_price}"
+	end
+
+end
+
+class Customer
+
+	attr_reader :restaurant, :name, :address
+	
+	def initialize(restaurant, name, address)
+		@name = name
+		@address = address
+		restaurant.customer_db << self
+	end
+
+	def to_s
+		@name.to_s
+	end
+
+end
+
+class Item
+
+	attr_reader :name, :price
+
+	def initialize(name, price)
+		@name = name
+		@price = price
+		Restaurant.item_db << self
+	end
+
+	def to_s
+		@name.to_s
+	end
+
+end
+
+class Employee
+
+	attr_reader :name, :position
+
+	def initialize(name, position)
+		@name = name
+		@position = position
+		Restaurant.employee_db << self
+	end
+
+	def to_s
+		@name.to_s
+	end
+
+end
