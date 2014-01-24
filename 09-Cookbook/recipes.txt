@@ -1,5 +1,4 @@
-Crumpets
-Beans & Bacon breakfast
-Plum pudding
-Apple pie
-Christmas crumble
+name,rating,preparation,cooking
+Chocolat,1,10,30
+Fruit salad,2,5,5
+Carrot cake,3,30,125
